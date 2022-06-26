@@ -17,12 +17,13 @@ async function writeFile(dir, file){
   return new Promise((resolve, reject) => {
     const fullPath = path.join(dir, file.name);
     file.file(async (fileItself)=>{
+      const data = await new Response(fileItself).arrayBuffer();
       const ex = await exists(fullPath);
       if (ex){
         await removeFile(dir, file.name);
       }
       await mkdirp(dir);
-      await fsPromises.writeFile(fullPath, fileItself);
+      await fsPromises.writeFile(fullPath, Filer.Buffer.from(data));
       resolve();
     })
   })
@@ -69,10 +70,38 @@ async function removeFile(dir, filename){
   await fsPromises.unlink(path.join(dir, filename));
 }
 
+async function getFileAsBlob(dir, filename){
+  const fullPath = path.join(dir, filename);
+  return new Promise((resolve, reject) => {
+    fs.readFile(fullPath, (err, data)=> {
+      resolve(new Blob([data]))
+    });
+  })
+}
+
+function getDataURLHeader(filename){
+  const ext = path.extname(filename);
+  if (ext === ".png") return "data:image/png;base64,";
+  if (ext === ".mp3") return "data:audio/mpeg;base64,";
+}
+
+async function getFileAsDataURL(dir, filename){
+  const blob = await getFileAsBlob(dir, filename);
+  var reader = new FileReader();
+  reader.readAsDataURL(blob); 
+  return new Promise((resolve, reject) => {
+    reader.onloadend = function() {
+      const dataURL = getDataURLHeader(filename) + reader.result.replace('data:application/octet-stream;base64,', '');
+      resolve(dataURL);
+    }
+  });
+}
+
 export default {
   clear: clearStorage,
   write: writeFile,
   list: listAllFiles,
   remove: removeFile,
-  watchDir
+  watchDir,
+  getFileAsDataURL
 }

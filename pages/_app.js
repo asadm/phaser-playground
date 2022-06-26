@@ -4,6 +4,8 @@ import { createTheme } from '@nextui-org/react';
 import '../styles/globals.css'
 import "../styles/editor.scss"
 import "../styles/physicsEditor.scss"
+import '../styles/prism-shade-of-purple.css';
+
 
 export const lightTheme = createTheme({
   type: 'light',

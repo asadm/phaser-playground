@@ -14,9 +14,11 @@
     "image-outline": "^0.1.0",
     "next": "12.1.6",
     "next-themes": "^0.2.0",
+    "prismjs": "^1.28.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-iconly": "^2.2.5"
+    "react-iconly": "^2.2.5",
+    "react-simple-code-editor": "^0.11.2"
   },
   "devDependencies": {
     "eslint": "8.18.0",

@@ -1,10 +1,39 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { useState } from 'react'
+import { Delete } from 'react-iconly';
+import { Grid, Collapse, Text, Container, Row, Button, Dropdown} from "@nextui-org/react";
+import { useState, useEffect } from 'react'
 import styles from '../styles/Home.module.css'
+import FS from "../common/fs";
+
+//handle files dropped in
+function scanFiles(item, container) {
+  let elem = document.createElement("li");
+  elem.innerHTML = item.name;
+  container.appendChild(elem);
+ 
+//  if (item.isDirectory) {
+//     let directoryReader = item.createReader();
+//     let directoryContainer = document.createElement("ul");
+//     container.appendChild(directoryContainer);
+//     directoryReader.readEntries(function(entries) {
+//         entries.forEach(function(entry) {
+//           scanFiles(entry, directoryContainer);
+//       });
+//     });
+//   }
+}
 
 export default function Home() {
-
+  const [files, setFiles] = useState([]);
+  useEffect(()=>{
+    const endWatch = FS.watchDir("/assets", files => setFiles(files))
+    // FS.list("/assets").then(files => {
+    //   console.log("LS", files);
+    //   setFiles(files);
+    // })
+    return endWatch;
+  },[])
+  console.log("A",files);
   return (
     <div className={styles.container}>
       <Head>
@@ -13,60 +42,106 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+      <main className="editor-container">
+        <Container fluid>
+          <Row>
+          <Button.Group>
+            <Button onPress={()=>{
+              var con = confirm("Are you sure you want to delete all assets and code and start new project?");
+              if (con) {
+                FS.clear();
+              }
+            }}>New Project</Button>
+          </Button.Group>
+          </Row>
+        <Row>
+          <Grid.Container gap={1}>
+            <Grid xs={2}>
+              <Container>
+                <Collapse.Group accordion={false}>
+                  <Collapse expanded={files && files.length>0} title="Assets">
+                    <div id='dropzone' 
+                      onDragOver={(event)=>{
+                          event.preventDefault();
+                    }}
+                    onDrop={(event)=>{
+                      let items = event.dataTransfer.items;
+                      event.preventDefault();
+                      // const curFiles = files.splice(0);
+                      for (let i=0; i<items.length; i++) {
+                        let item = items[i].webkitGetAsEntry();
+                        
+                        if (item) {
+                          //TODO: if file already exists, replace it
+                          FS.write("/assets", item);
+                          // curFiles.push(item.name);
+                          // scanFiles(item, listing);
+                        }
+                      }
+                      // console.log(curFiles)
+                      // setFiles(curFiles);
+                    }}>
+                      <div id="boxtitle">
+                        Drop Images + MP3s here
+                      </div>
+                    </div>
+                    <ul>
+                      {files.map((item, index)=>{
+                        return (
+                          <Dropdown>
+                            <Dropdown.Button light className='file-button'>
+                              {item}
+                            </Dropdown.Button>
+                            <Dropdown.Menu
+                              onAction={(key)=>{
+                                if (key === "delete") {
+                                  var con = confirm("Are you sure you want to delete this asset?");
+                                  if (con) {
+                                    FS.remove("/assets", item);
+                                  }
+                                }
+                              }}
+                              variant="light"
+                              aria-label="Actions"
+                            >
+                              <Dropdown.Item key="preview">Preview</Dropdown.Item>
+                              <Dropdown.Item key="collision">Collision Editor</Dropdown.Item>
+                              <Dropdown.Item key="delete" color="error" withDivider>
+                                Delete file
+                              </Dropdown.Item>
+                            </Dropdown.Menu>
+                          </Dropdown>
+                        )
+                        // return <li className='file-item' key={item}>
+                        //   {item}
+                        //   <a onClick={()=> {
+                        //     var con = confirm("Are you sure you want to delete this asset?");
+                        //     if (con) {
+                        //       FS.remove("/assets", item);
+                        //     }
+                        //   }}><Delete size={15} set="bold" primaryColor="red"/></a>
+                        // </li>
+                      })}
+                    </ul>
+                  </Collapse>
+                  <Collapse expanded title="Code">
+                    <Text>
+                      asdas
+                    </Text>
+                  </Collapse>
+                </Collapse.Group>
+              </Container>
+            </Grid>
+            <Grid xs={8}>
+              d
+            </Grid>
+            <Grid xs={2}>
+              f
+            </Grid>
+          </Grid.Container>
+          </Row>
+        </Container>
       </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
     </div>
   )
 }

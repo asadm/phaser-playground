@@ -26,6 +26,13 @@ class MultiplayerClass extends SuperEventEmitter {
     // })
   }
 
+  destroy() {
+    Object.keys(this.players).forEach(key=>{
+      this.players[key].disconnect();
+      delete this.players[key];
+    })
+  }
+
   isRenderServer() {
     return true
   }

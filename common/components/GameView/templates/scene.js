@@ -205,12 +205,22 @@ const generateUpdatePlayer = async () => {
   return ``;
 }
 
+const generateAfterPlayerCreated = async () => {
+  const exists = await FS.exists(`/configs/afterPlayerCreated.js`);
+  if (exists){
+    const code = await FS.getFileAsText("/configs", "afterPlayerCreated.js");
+    return code;
+  }
+  return ``;
+}
 
 const generateScene = async (gameConfig) => {
   const preloadFunc = await generatePreloadFunc();
   const createFunc = await generateCreateFunc(gameConfig);
   const addPlayerSpriteFunc = await generateAddPlayerSprite();
   const updatePlayerFunc = await generateUpdatePlayer();
+  const afterPlayerCreatedFunc = await generateAfterPlayerCreated();
+
   return `
   /**
    * This is an example game scene that uses CommonGameScene to create a (local) multiplayer game.
@@ -224,6 +234,7 @@ const generateScene = async (gameConfig) => {
     ${createFunc}
     ${addPlayerSpriteFunc}
     ${updatePlayerFunc}
+    ${afterPlayerCreatedFunc}
   }
 `
 }

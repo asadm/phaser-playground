@@ -26,7 +26,22 @@ updatePlayer(playerId, sprite, state) {
   // }
 }`
 
+const afterPlayerCreatedJs = `
+/* 
+Do additional things after creation of each player
+playerId: string - id of player
+sprite: Phaser.GameObjects.Sprite - sprite of player
+state: PlayerState - game state of player (see playerState.js)
+*/
+
+afterPlayerCreated(playerId, sprite, state) {
+  // sprite.setOnCollideWith(this.matter.world.walls.bottom, (pair) => {
+  //   state.setState("jumping", false);
+  // });
+}`
+
 export default {
   "gameConfig.json": JSON.stringify(gameConfig, null, 2),
+  "afterPlayerCreated.js": afterPlayerCreatedJs,
   "updatePlayer.js": updatePlayerJs,
 }

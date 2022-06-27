@@ -27,6 +27,7 @@ class CommonGameScene extends Phaser.Scene {
     });
 
     this.players[playerState.id] = { state: playerState, sprite };
+    if (this.afterPlayerCreated) this.afterPlayerCreated(playerState.id, sprite, playerState);
   }
 
   async addPlayerSprite() {

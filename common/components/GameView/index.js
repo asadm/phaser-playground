@@ -8,6 +8,7 @@ export default function GameView(){
     // destroy existing game
     if (window.game) {
       window.game.destroy();
+      window._multiplayer.destroy();
       document.getElementById("game-canvas-container").innerHTML = "";
     }
     window.gameCreated = true;

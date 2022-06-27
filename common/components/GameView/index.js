@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import generateGameCode from "./templates";
+import { Grid, Collapse, Text, Container, Row, Button, Dropdown, Modal} from "@nextui-org/react";
 
 export default function GameView(){
   function createGame(skipIfCreated){
@@ -16,7 +17,7 @@ export default function GameView(){
     });
   }
   useEffect(() => {
-    createGame(true);
+    // createGame(true);
     Mousetrap.bind(['command+s', 'ctrl+s'], function(e) {
         createGame();
         return false;
@@ -25,9 +26,10 @@ export default function GameView(){
   }, []);
   return (
     <div style={{width: "100%"}}>
-      <h1 onClick={()=>{
+      <h1>GameView</h1>
+      <Button onClick={()=>{
         createGame();
-      }}>GameView</h1>
+      }}>Play (CMD+S)</Button>
       <div id="game-canvas-container"></div>
     </div>
   );

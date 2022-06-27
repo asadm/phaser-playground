@@ -1,17 +1,11 @@
 const Filer = require('filer');
-
-const fs = new Filer.FileSystem();
-var sh = new fs.Shell();
-const fsPromises = fs.promises;
-const path = Filer.path;
-
-var ROOTDIRHANDLE = null;
-
-function errorHandler(err){
-  console.log("error", err)
-  alert("Error requesting permission for filesystem!");
+let fs, sh, fsPromises, path;
+if (typeof window !== "undefined"){
+  fs = new Filer.FileSystem();
+  sh = new fs.Shell();
+  fsPromises = fs.promises;
+  path = Filer.path;
 }
-
 
 async function writeFile(dir, file){
   return new Promise((resolve, reject) => {

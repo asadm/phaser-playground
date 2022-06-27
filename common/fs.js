@@ -29,6 +29,16 @@ async function writeFile(dir, file){
   })
 }
 
+async function writeTextFile(dir, filename, data) {
+  const fullPath = path.join(dir, filename);
+  return new Promise(async (resolve, reject) => {
+    await mkdirp(path.dirname(fullPath));
+    fs.writeFile(fullPath, data, (err)=> {
+      resolve();
+    });
+  });
+}
+
 async function mkdirp(path){
   return new Promise((resolve, reject) => {
     sh.mkdirp(path, resolve);
@@ -60,14 +70,29 @@ function watchDir(dir, onChange){
 }
 
 async function clearStorage(){
-  const files = await listAllFiles("/assets");
+  await clearDirectory("/assets");
+  await clearDirectory("/configs");
+  await clearDirectory("/properties");
+}
+
+async function clearDirectory(dir){
+  const files = await listAllFiles(dir);
   for(let i=0; i<files.length; i++){
-    await fsPromises.unlink(path.join("/assets", files[i]));
+    await fsPromises.unlink(path.join(dir, files[i]));
   }
 }
 
 async function removeFile(dir, filename){
   await fsPromises.unlink(path.join(dir, filename));
+}
+
+async function getFileAsText(dir, filename){
+  const fullPath = path.join(dir, filename);
+  return new Promise((resolve, reject) => {
+    fs.readFile(fullPath, 'utf8', (err, data)=> {
+      resolve(data);
+    });
+  })
 }
 
 async function getFileAsBlob(dir, filename){
@@ -97,11 +122,27 @@ async function getFileAsDataURL(dir, filename){
   });
 }
 
+function getAssetType(filename){
+  if (filename.endsWith(".mp3")) return "audio";
+  if (filename.endsWith(".png")) return "image";
+  return "unknown";
+}
+
+function getFilenameWithoutExt(filename){
+  return filename.substring(0, filename.lastIndexOf("."));
+}
+
 export default {
   clear: clearStorage,
   write: writeFile,
+  writeTextFile,
   list: listAllFiles,
   remove: removeFile,
   watchDir,
-  getFileAsDataURL
+  getFileAsDataURL,
+  getFileAsText,
+  getAssetType,
+  getFilenameWithoutExt,
+  exists,
+  path
 }

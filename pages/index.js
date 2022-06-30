@@ -8,6 +8,7 @@ import { useState } from 'react';
 import FS from "../common/fs";
 import AssetProperties from '../common/components/AssetProperties';
 import GameView from '../common/components/GameView';
+import {exportFS, importFS} from '../common/importexport';
 
 export default function Home() {
   const [propertiesOfFile, setPropertiesOfFile] = useState(null);
@@ -48,6 +49,12 @@ export default function Home() {
                   FS.clear();
                 }
               }}>New Project</Button>
+              <Button onPress={() => {
+                exportFS();
+              }}>Export Project</Button>
+               <Button> Import Project: <input type="file" id="input-button" onChange={(e)=>{
+                importFS(e.target.files[0]);
+              }} /></Button>
             </Button.Group>
           </Row>
           <Row fluid>

@@ -77,7 +77,7 @@ const convertToPhaserMatterConfig = (filename, physicsOptions, shape) => {
   }
 }
 
-const generateSpriteWithPhysics = async (file) => {
+const generateSpriteWithPhysics = async (file, previewMode) => {
   let codeLines = [`// ${file}`];
   const exists = await FS.exists(`/properties/${file}.json`);
   let properties = {startX: 100, startY: 200*Math.random(), autoCreate: true};
@@ -116,19 +116,16 @@ const generateSpriteWithPhysics = async (file) => {
   if (properties.originX || properties.originY){
     codeLines.push(`${varName}.setOrigin(${properties.originX || 0.5}, ${properties.originY || 0.5});`);
   }
+
+  if (!previewMode){
+    codeLines.push(`${varName}.setInteractive();`);
+    codeLines.push(`this.input.setDraggable(${varName});`)
+    codeLines.push(`${varName}.setData("filename", "${file}");`);
+  }
   return {properties, order: properties.order || 0, code: codeLines.join("\n")};
-  // createLines.push({
-  //   order: properties.order || 0,
-  //   code:`
-  //   // ${file}
-  //   const ${varName} = this.add.image(${properties.startX}, ${properties.startY}, "${file}");
-  //   ${properties.scale?`${varName}.setScale(${properties.scale});`:``}
-  //   ${(properties.originX || properties.originY)?`${varName}.setOrigin(${properties.originX||0.5}, ${properties.originY||0.5});`:``}
-  //   `
-  // });
 }
 
-const generateCreateFunc = async (gameConfig) => {
+const generateCreateFunc = async (gameConfig, previewMode) => {
   const files = await FS.list("/assets");
   const playerSprite = await getPlayerSpriteAndProperties();
   let createLines = [];
@@ -138,7 +135,7 @@ const generateCreateFunc = async (gameConfig) => {
     const type = FS.getAssetType(file);
     if (type === "image") {
       console.log(`Generating sprite for ${file}`);
-      const line = await generateSpriteWithPhysics(file);
+      const line = await generateSpriteWithPhysics(file, previewMode);
       if (line.properties && line.properties.autoCreate){
         createLines.push(line);
       }
@@ -147,15 +144,25 @@ const generateCreateFunc = async (gameConfig) => {
   return `
   create() {
     super.create();
+    ${!previewMode? `this.matter.pause()`:``}
     this.matter.world.setBounds(0, 0, this.sys.game.scale.gameSize.width, this.sys.game.scale.gameSize.height);
     // wait for image loads
+    ${!previewMode?`
+    this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+        gameObject.x = dragX;
+        gameObject.y = dragY;
+        // console.log(gameObject.x, gameObject.y, gameObject.getData('filename'));
+        if (window.editorDragHandler) window.editorDragHandler(gameObject.getData('filename'), gameObject.x, gameObject.y);
+    });
+    `:''}
     setTimeout(() => {
       ${createLines.sort((a,b)=> a.order-b.order).map((el)=> el.code).join("\n")}
 
       // add any players
+      ${previewMode?`
       for (let i = 0; i < ${gameConfig.players||0}; i++) {
         this.multiplayer.addPlayer();
-      }
+      }`:``}
     }, 100);
     
   }`;
@@ -214,9 +221,9 @@ const generateAfterPlayerCreated = async () => {
   return ``;
 }
 
-const generateScene = async (gameConfig) => {
+const generateScene = async (gameConfig, previewMode) => {
   const preloadFunc = await generatePreloadFunc();
-  const createFunc = await generateCreateFunc(gameConfig);
+  const createFunc = await generateCreateFunc(gameConfig, previewMode);
   const addPlayerSpriteFunc = await generateAddPlayerSprite();
   const updatePlayerFunc = await generateUpdatePlayer();
   const afterPlayerCreatedFunc = await generateAfterPlayerCreated();
@@ -232,11 +239,11 @@ const generateScene = async (gameConfig) => {
   
     ${preloadFunc}
     ${createFunc}
-    ${addPlayerSpriteFunc}
-    ${updatePlayerFunc}
-    ${afterPlayerCreatedFunc}
+    ${previewMode?addPlayerSpriteFunc:""}
+    ${previewMode?updatePlayerFunc:""}
+    ${previewMode?afterPlayerCreatedFunc:""}
   }
 `
-}
+};
 
 export default generateScene;

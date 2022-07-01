@@ -2,7 +2,9 @@ import { Grid, Collapse, Text, Container, Row, Button, Checkbox, Modal, Spacer }
 import CodeEditor from "../CodeEditor";
 import FS from "../../fs";
 import { useState } from "react";
-import CollisionEditor from '../CollisionEditor';
+import Link from 'next/link'
+
+// import CollisionEditor from '../../../pages/collision';
 import DefaultCodes from './defaultCodes';
 import { useEffect } from "react";
 
@@ -53,11 +55,9 @@ export default function AssetProperties({ filename, onClose, reloadGame }) {
           <CodeEditor filename={FSPREFIX + filename + ".physics.json"} defaultCode={DefaultCodes.physics} />
         </Row>
         <Spacer />
-        <Button onPress={()=>{
-          setCollisionEditConfig({name: filename});
-        }}>Collision Shape Editor</Button>
+        <a target="_blank" href={`/collision/${encodeURIComponent(filename)}`}><Button>Collision Shape Editor</Button></a>
       </>)}
-      <Modal
+      {/* <Modal
         width="70vw"
         closeButton
         aria-labelledby="modal-title"
@@ -75,7 +75,7 @@ export default function AssetProperties({ filename, onClose, reloadGame }) {
         <Modal.Body>
           {collisionEditConfig && <CollisionEditor imageName={collisionEditConfig.name} />}
         </Modal.Body>
-      </Modal>
+      </Modal> */}
     </div>
   );
 }

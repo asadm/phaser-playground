@@ -1,12 +1,16 @@
 import Head from 'next/head'
-
+import { useRouter } from 'next/router'
+import Script from 'next/script'
 import { useEffect, useState } from 'react'
 import { Button } from "@nextui-org/react";
-import FS from "../../fs";
+import FS from "../../common/fs";
 // import sampleImage from "./sample.png"
 var getImageOutline = require('image-outline/browser');
 
-export default function Home({imageName}) {
+export default function CollisionEditor() {
+  const router = useRouter()
+  console.log(router.query, "router")
+  const imageName = router.query.filename;
   const [zoom, setZoom] = useState(100);
   const [simplifyThreshold, setSimplifyThreshold] = useState(10);
   const [editor, setEditor] = useState(null);
@@ -23,7 +27,7 @@ export default function Home({imageName}) {
   }
 
   useEffect(() => {
-    if (window.collisionEditorLoaded) return;
+    if (window.collisionEditorLoaded || !imageName) return;
     window.collisionEditorLoaded = true;
     
     
@@ -47,10 +51,26 @@ export default function Home({imageName}) {
       image.src = blob;
     });
 
-  }, []);
+  }, [imageName]);
 
   return (
     <div className="physics-editor">
+      <Script src="/js/jquery-1.11.3.min.js" strategy="beforeInteractive" />
+      <Script src="/js/raphael.js" strategy="beforeInteractive" />
+      <Script src="/js/shapes/line.js" strategy="beforeInteractive" />
+      <Script src="/js/shapes/ellipse.js" strategy="beforeInteractive" />
+      <Script src="/js/shapes/rect.js" strategy="beforeInteractive" />
+      <Script src="/js/shapes/polygon.js" strategy="beforeInteractive" />
+      <Script src="/js/shapeManager.js" strategy="beforeInteractive" />
+
+      <Script src="/gamecode/lib/phaser.min.js" strategy="beforeInteractive" />
+      <Script src="/gamecode/lib/mousetrap.min.js" strategy="beforeInteractive" />
+      <Script src="/gamecode/lib/eventemitter.js" strategy="beforeInteractive" />
+      <Script src="/gamecode/superEventEmitter.js" strategy="beforeInteractive" />
+      <Script src="/gamecode/playersConfig.js" strategy="beforeInteractive" />
+      <Script src="/gamecode/playerState.js" strategy="beforeInteractive" />
+      <Script src="/gamecode/multiplayer.js" strategy="beforeInteractive" />
+      <Script src="/gamecode/gamescene.js" strategy="beforeInteractive" />
       <main>
         <div className='image-wrapper'>
         {image && <img src={image.src} alt="sample"

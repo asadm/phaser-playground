@@ -1,9 +1,9 @@
 import { Button } from "@nextui-org/react";
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
-import {autocompletion} from '@codemirror/autocomplete';
+// import {autocompletion} from '@codemirror/autocomplete';
 import { useState, useEffect } from 'react';
-import globalJavaScriptCompletions from "./autocomplete";
+// import globalJavaScriptCompletions from "./autocomplete";
 import FS from '../../fs';
 
 

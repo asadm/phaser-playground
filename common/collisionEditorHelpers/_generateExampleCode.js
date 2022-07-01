@@ -1,14 +1,15 @@
-export default function(varName, filename) {
+export default function(varName, filename, previewModeConfig) {
 return `
 const config = {
   type: Phaser.AUTO,
   parent: 'phaser-example',
-  width: 600,
-  height: 800,
+  width: 800,
+  height: 600,
   scene: {
     preload: preload,
     create: create
   },
+  backgroundColor: '#2d2d2d',
   physics: {
     default: 'matter',
     matter: {
@@ -21,18 +22,22 @@ var game = new Phaser.Game(config);
 
 function preload() {
   //  Load the sprite image
-  this.load.image("${varName}", 'assets/${filename}');
-
+  ${!previewModeConfig?`this.load.image("${varName}", 'assets/${filename}');`:``}
+  ${previewModeConfig?`this.textures.addBase64("${varName}", "${previewModeConfig.imageData}");`:``}
   //  Load body shape from JSON file generated using the editor
-  this.load.json('${varName}-shape', 'assets/${varName}-shape.json');
+  ${!previewModeConfig?`this.load.json('${varName}-shape', 'assets/${varName}-shape.json')`:`// Preloaded`};
 }
 
 function create() {
-  this.matter.world.setBounds(0, 0, 600, 800);
+  this.matter.world.setBounds(0, 0, 800, 600);
 
-  var shape = this.cache.json.get('${varName}-shape');
-
-  this.matter.add.image(100, 100, '${varName}', null, { shape: shape });
+  var shape = ${!previewModeConfig?`this.cache.json.get('${varName}-shape');`:`${previewModeConfig.shapeConfig.split("\n").slice(1).join("\n")}`};
+  
+  ${!previewModeConfig?`this.matter.add.image(100, 100, '${varName}', null, { shape: shape });`:`
+  setTimeout(() => {
+    this.matter.add.image(100, 100, '${varName}', null, { shape: shape });
+  }, 1000);
+  `}
 
   // Create more sprites on mouse click
   this.input.on('pointerdown', function (pointer) {

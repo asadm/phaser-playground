@@ -27,6 +27,7 @@ export default function CollisionEditor() {
   const [image, setImage] = useState(null);
   const [polygons, setPolygons] = useState([]);
   const [autoShapePolygonExists, setAutoShapePolygonExists] = useState(false);
+  const [previewMode, setPreviewMode] = useState(null);
 
   function addPolygon(editor, threshold) {
     var polygon = getImageOutline(window.__editorImageEl, { simplifyThreshold: threshold });
@@ -260,15 +261,9 @@ export default function CollisionEditor() {
             </Button.Group>)}
 
 
+            
 
-
-          {saveMode &&
-            <Button.Group color='success'>
-              <Button onClick={() => {
-                const shapes = editor.getShapesJson()
-                FS.writeTextFile("/properties", imageName + ".shape.json", JSON.stringify(shapes));
-              }}>Save</Button>
-            </Button.Group>}
+          
 
           {!saveMode &&
             <div style={{ margin: "12px" }} >
@@ -285,6 +280,33 @@ export default function CollisionEditor() {
             </div>
           }
 
+<Button.Group>
+              <Button onClick={async () => {
+                const shapes = editor.getShapesJson()
+                const fullConfig = convertToPhaserMatterConfig(FS.getFilenameWithoutExt(imageName), imageName, shapes, applyConvexHull).trim();
+                const imageData = await FS.getFileAsDataURL("/assets", imageName);
+                const generatedCode = generateGameCode(FS.getFilenameWithoutExt(imageName), imageName, {shapeConfig: fullConfig, imageData});
+                setPreviewMode(true);
+                setTimeout(() => {
+                  // destroy existing game
+                  if (window.game) {
+                    window.game.destroy();
+                    document.getElementById("phaser-example").innerHTML = "";
+                  }
+                  // create new game
+                  eval(generatedCode);
+                }, 500);
+              }}>Preview</Button>
+            </Button.Group>
+
+            {saveMode &&
+            <Button.Group color='success'>
+              <Button onClick={() => {
+                const shapes = editor.getShapesJson()
+                FS.writeTextFile("/properties", imageName + ".shape.json", JSON.stringify(shapes));
+              }}>Save</Button>
+            </Button.Group>}
+
           {!saveMode &&
             <Button.Group color='success'>
               <Button onClick={() => {
@@ -294,6 +316,8 @@ export default function CollisionEditor() {
                 setShowJSON(fullConfig);
               }}>Show JSON</Button>
             </Button.Group>}
+
+            
 
         </Row>
 
@@ -329,6 +353,26 @@ export default function CollisionEditor() {
                 </div>
               </Grid>
             </Grid.Container>
+          </Modal.Body>
+        </Modal>
+        <Modal
+          width="900px"
+          css={{minHeight: "600px"}}
+          scroll
+          closeButton
+          aria-labelledby="modal-title"
+          open={previewMode !== null}
+          onClose={() => setPreviewMode(null)}
+        >
+          <Modal.Header>
+            <Text id="modal-title" size={18}>
+              Phaser + Matter Physics Preview
+            </Text>
+          </Modal.Header>
+          <Modal.Body>
+            <center>
+            <div id="phaser-example"></div>
+            </center>
           </Modal.Body>
         </Modal>
       </main>

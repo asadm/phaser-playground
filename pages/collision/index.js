@@ -53,7 +53,10 @@ export default function CollisionEditor() {
         </Row>
         <Spacer />
         <Row justify='center'>
-        <div {...getRootProps()}>
+        <div style={{
+          padding: "20px",
+          border: "2px dashed"
+        }} {...getRootProps()}>
       <input {...getInputProps()} />
       {
         isDragActive ?

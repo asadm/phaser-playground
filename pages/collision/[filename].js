@@ -2,10 +2,13 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
-import { Button, Modal, Row, Text } from "@nextui-org/react";
+import { Button, Modal, Row, Text, Grid } from "@nextui-org/react";
 import FS from "../../common/fs";
 import addPointToPolygon from './_addPointToPolygon';
 import removePointClosest from './_removePointClosest';
+import convertToPhaserMatterConfig from './_generateJSON';
+import generateGameCode from './_generateExampleCode';
+
 // import sampleImage from "./sample.png"
 var getImageOutline = require('image-outline/browser');
 import CodeEditor from '../../common/components/CodeEditor';
@@ -110,7 +113,7 @@ export default function CollisionEditor() {
       const shapeFile = imageName + ".shape.json";
       FS.exists(FS.path.join("/properties", shapeFile)).then((exists) => {
         if (!exists) {
-          addPolygon(shapeManager, simplifyThreshold);
+          // addPolygon(shapeManager, simplifyThreshold);
           return;
         }
         FS.getFileAsText("/properties", shapeFile).then((text) => {
@@ -122,7 +125,7 @@ export default function CollisionEditor() {
           }
           catch (e) {
             console.error(e);
-            addPolygon(shapeManager, simplifyThreshold);
+            // addPolygon(shapeManager, simplifyThreshold);
           }
         })
       })
@@ -263,14 +266,15 @@ export default function CollisionEditor() {
               <Button onClick={() => {
                 const shapes = editor.getShapesJson()
                 FS.writeTextFile("/properties", imageName + ".shape.json", JSON.stringify(shapes));
-                setShowJSON(JSON.stringify(shapes, null, 2));
+                const fullConfig = convertToPhaserMatterConfig(FS.getFilenameWithoutExt(imageName), imageName, shapes, true).trim();
+                setShowJSON(fullConfig);
               }}>Show JSON</Button>
             </Button.Group>}
 
         </Row>
 
         <Modal
-          width="50vw"
+          width="95vw"
           scroll
           closeButton
           aria-labelledby="modal-title"
@@ -283,7 +287,24 @@ export default function CollisionEditor() {
             </Text>
           </Modal.Header>
           <Modal.Body>
-            {showJSON && <CodeEditor readOnly defaultCode={showJSON} />}
+          <Grid.Container gap={2} justify="center">
+          <Grid xs={6}>
+              {showJSON && <CodeEditor className="full-width" readOnly defaultCode={showJSON} />}
+            </Grid>
+            <Grid xs={6}>
+              <div style={{width: "100%"}}>
+              <Row>
+                <h3>Usage</h3>
+              </Row>
+              <p>
+                Save the JSON file on left and then load it in your Phaser + Matter game as follows:
+                </p>
+              <Row>
+                {showJSON && <CodeEditor className="full-width" readOnly defaultCode={generateGameCode(FS.getFilenameWithoutExt(imageName), imageName)} />}
+              </Row>
+              </div>
+            </Grid>
+            </Grid.Container>
           </Modal.Body>
         </Modal>
       </main>

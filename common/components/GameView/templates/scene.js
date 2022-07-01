@@ -23,8 +23,8 @@ const generatePreloadFunc = async () => {
 }
 
 const getConvexHullVerticesFromPolygon = (polygon) => {
-  console.log("getConvexHullVerticesFromPolygon", convexhull.makeHull(polygon));
-  console.log("getConvexHullVerticesFromPolygon2", getConvexHullVerticesFromPolygon2(polygon));
+  // console.log("getConvexHullVerticesFromPolygon", convexhull.makeHull(polygon));
+  // console.log("getConvexHullVerticesFromPolygon2", getConvexHullVerticesFromPolygon2(polygon));
   // return [convexhull.makeHull(polygon)];
   return getConvexHullVerticesFromPolygon2(polygon);
 }
@@ -40,7 +40,7 @@ const getConvexHullVerticesFromPolygon2 = (polygon) => {
   });
 }
 
-const convertShapesToFixtures = (filename, shapes) => {
+const convertShapesToFixtures = (filename, shapes, applyConvexHull) => {
   console.log("convertShapesToFixtures", filename, shapes);
   const formatted = shapes.map(s => {
     if (s.type === "Polygon"){
@@ -66,7 +66,7 @@ const convertShapesToFixtures = (filename, shapes) => {
       return {
 				"label": `${filename}-fixture-${i}`,
 				"isSensor": false,
-        "vertices": getConvexHullVerticesFromPolygon(shape.points)
+        "vertices": applyConvexHull? getConvexHullVerticesFromPolygon(shape.points): shape.points
 			}
     }
     else if (shape.type === "circle"){
@@ -84,7 +84,7 @@ const convertShapesToFixtures = (filename, shapes) => {
   
 }
 
-const convertToPhaserMatterConfig = (filename, physicsOptions, shape) => {
+export const convertToPhaserMatterConfig = (filename, physicsOptions, shape, applyConvexHull) => {
   return {
     ...physicsOptions,
     "type": "fromPhysicsEditor",
@@ -100,7 +100,7 @@ const convertToPhaserMatterConfig = (filename, physicsOptions, shape) => {
 			"category": 1,
 			"mask": 255
 		},
-		"fixtures": convertShapesToFixtures(filename, shape)
+		"fixtures": convertShapesToFixtures(filename, shape, applyConvexHull)
   }
 }
 
@@ -124,8 +124,8 @@ const generateSpriteWithPhysics = async (file, previewMode) => {
     if (physicsShapeExists){
       const shapeJson = await FS.getFileAsText("/properties", `${file}.shape.json`);
       const shape = JSON.parse(shapeJson);
-      console.log("convertToPhaserMatterConfig(file, physics, shape)", file, shape, convertToPhaserMatterConfig(file, physics, shape));
-      codeLines.push(`const ${varName} = this.matter.add.image(${properties.startX}, ${properties.startY}, "${file}", null, {shape: ${JSON.stringify(convertToPhaserMatterConfig(file, physics, shape))}});`);
+      console.log("convertToPhaserMatterConfig(file, physics, shape, true)", file, shape, convertToPhaserMatterConfig(file, physics, shape, true));
+      codeLines.push(`const ${varName} = this.matter.add.image(${properties.startX}, ${properties.startY}, "${file}", null, {shape: ${JSON.stringify(convertToPhaserMatterConfig(file, physics, shape, true))}});`);
     }
     else{
       codeLines.push(`const ${varName} = this.matter.add.image(${properties.startX}, ${properties.startY}, "${file}", null, {shape: ${JSON.stringify(physics)}});`);

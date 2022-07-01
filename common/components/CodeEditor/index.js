@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import FS from '../../fs';
 
 
-export default function CodeEditor({ filename, defaultCode, readOnly }) {
+export default function CodeEditor({ filename, defaultCode, readOnly, className }) {
   const [code, setCode] = useState("");
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function CodeEditor({ filename, defaultCode, readOnly }) {
   }, [filename]);
 
   return (
-    <div className="code-editor">
+    <div className={"code-editor " + (className?className:"")}>
       {!readOnly && (
       <>
       <Button onPress={()=>{

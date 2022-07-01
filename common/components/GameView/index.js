@@ -62,7 +62,7 @@ export default function GameView(){
     const isPreviewMode = document.querySelector('.preview-mode-check input').checked;
     console.log("create game", isPreviewMode);
     generateGameCode(isPreviewMode).then((code) => {
-      // console.log(code);
+      console.log(code);
       eval(code);
     });
   }

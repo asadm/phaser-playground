@@ -274,7 +274,7 @@ export default function CollisionEditor() {
                 setApplyConvexHull(!applyConvexHull);
               }} size="sm">
                 Apply Convex Hull
-                <Tooltip content={<b>Phaser doesn't like it if your polygon is not convex-shaped.<br />Untick this if it messes with your shape too much!</b>}>
+                <Tooltip content={<b>Phaser doesn&apos;t like it if your polygon is not convex-shaped.<br />Untick this if it messes with your shape too much!</b>}>
                   <small style={{ fontWeight: "bold", marginLeft: "5px", color: "#0072F5" }}>
                     (what?)
                   </small>

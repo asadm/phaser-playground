@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Link from 'next/link'
 import { Button, Spacer, Row, Grid } from "@nextui-org/react";
 
 export default function CollisionEditor() {
@@ -20,7 +21,7 @@ export default function CollisionEditor() {
         </Grid.Container>
       </Row>
       <Row justify='center'>
-        <a href="/collision"><Button>Open</Button></a>
+        <Link href="/collision"><Button>Open</Button></Link>
       </Row>
       
         <Spacer y={10}/>

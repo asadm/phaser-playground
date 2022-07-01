@@ -221,14 +221,19 @@ export default function CollisionEditor() {
                 "x": 10
               })
             }}>Add Circle</Button>
+            
             <Button onPress={() => {
-              editor.addShapeJson({
+              const polygon = editor.addShapeJson({
                 "type": "Polygon",
-                "points": "10,10 10,30 30,30 30,10",
+                "points": "10,10 10,30 30,30 20,10",
                 "strokeColor": "#FF00FF",
                 "strokeWidth": 2
               })
-            }}>Add Polygon</Button>
+
+              editor.selectShapesById([polygon.id]);
+            }}>
+              <Tooltip content={<b>Adds a polygon shape.<br/><br/>Select polygon and left-click outside the polygon to add a new point there.<br/><br/>Select polygon and right-click on any point of the polygon to delete that point.</b>}>Add Polygon</Tooltip></Button>
+            
             {!autoShapePolygonExists && <Button onPress={() => {
               addPolygon(editor, simplifyThreshold);
             }}>Auto-trace Border</Button>}
@@ -243,7 +248,7 @@ export default function CollisionEditor() {
                 setSimplifyThreshold(newThreshold);
                 addPolygon(editor, newThreshold);
               }}>-</Button>
-              <Button disabled>{polygons.length}</Button>
+              <Button disabled>{polygons.length} points</Button>
               <Button onPress={() => {
                 editor.deleteShapesByIds([autoTraceShapeID]);
                 const newThreshold = simplifyThreshold - 10;

@@ -44,7 +44,7 @@ export default function FileTree({onProperties}){
             }
           }}>
             <div id="boxtitle">
-              Drop Images + MP3s here
+              Drop Images here
             </div>
           </div>
           <ul>

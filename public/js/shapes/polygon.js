@@ -218,6 +218,8 @@ Polygon.prototype.drawShape = function drawShape() {
     var path = this.getPath();
 
     this.element.attr({'path': path,
+                        'fill-opacity': 0.7,
+                        'fill': '#5858f0',
                        'stroke': strokeColor,
                        'stroke-width': strokeW});
 

@@ -9,7 +9,6 @@ var getImageOutline = require('image-outline/browser');
 
 export default function CollisionEditor() {
   const router = useRouter()
-  console.log(router.query, "router")
   const imageName = router.query.filename;
   const [zoom, setZoom] = useState(100);
   const [simplifyThreshold, setSimplifyThreshold] = useState(10);
@@ -45,8 +44,28 @@ export default function CollisionEditor() {
                                           image.width, image.height,
                                           options);
       setEditor(shapeManager);
-      addPolygon(shapeManager, simplifyThreshold);
+      // read file if exists and load it
+      const shapeFile =  imageName + ".shape.json";
+      FS.exists(FS.path.join("/properties", shapeFile)).then((exists) => {
+        if (!exists){
+          addPolygon(shapeManager, simplifyThreshold);
+          return;
+        }
+        FS.getFileAsText("/properties", shapeFile).then((text) => {
+          try{
+            const json = JSON.parse(text);
+            shapeManager.setShapesJson(json);
+          }
+          catch(e){
+            console.error(e);
+            addPolygon(shapeManager, simplifyThreshold);
+          }
+        })
+      })
+      
+      
     }
+
     FS.getFileAsDataURL("/assets", imageName).then((blob)=>{
       image.src = blob;
     });
@@ -55,6 +74,9 @@ export default function CollisionEditor() {
 
   return (
     <div className="physics-editor">
+      <Head>
+        <title>Collision Editor - Phaser Playground</title>
+      </Head>
       <Script src="/js/jquery-1.11.3.min.js" strategy="beforeInteractive" />
       <Script src="/js/raphael.js" strategy="beforeInteractive" />
       <Script src="/js/shapes/line.js" strategy="beforeInteractive" />
@@ -105,26 +127,7 @@ export default function CollisionEditor() {
         }}>+</Button>
         <Button onClick={()=>{
           const shapes = editor.getShapesJson()
-          const formatted = shapes.map(s => {
-            if (s.type === "Polygon"){
-              return {
-                type: "polygon",
-                points: s.points.split(" ").map(p => {
-                  const [x, y] = p.split(",");
-                  return {x: parseInt(x), y: parseInt(y)}
-                })
-              }
-            }
-            else if (s.type === "Ellipse"){
-              return {
-                type: "circle",
-                x: s.x,
-                y: s.y,
-                radius: Math.max(s.radiusX, s.radiusY)
-              }
-            }
-          });
-          FS.writeTextFile("/properties", imageName + ".shape.json", JSON.stringify(formatted));
+          FS.writeTextFile("/properties", imageName + ".shape.json", JSON.stringify(shapes));
         }}>Save</Button>
       </Button.Group>
       </main>

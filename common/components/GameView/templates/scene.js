@@ -34,7 +34,27 @@ const getConvexHullVerticesFromPolygon = (polygon) => {
 }
 
 const convertShapesToFixtures = (filename, shapes) => {
-  return shapes.map((shape, i) => {
+  console.log("convertShapesToFixtures", filename, shapes);
+  const formatted = shapes.map(s => {
+    if (s.type === "Polygon"){
+      return {
+        type: "polygon",
+        points: s.points.split(" ").map(p => {
+          const [x, y] = p.split(",");
+          return {x: parseInt(x), y: parseInt(y)}
+        })
+      }
+    }
+    else if (s.type === "Ellipse"){
+      return {
+        type: "circle",
+        x: s.x,
+        y: s.y,
+        radius: Math.max(s.radiusX, s.radiusY)
+      }
+    }
+  });
+  return formatted.map((shape, i) => {
     if (shape.type === "polygon"){
       return {
 				"label": `${filename}-fixture-${i}`,

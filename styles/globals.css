@@ -14,3 +14,22 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.code-editor{
+  position: relative;
+}
+
+.code-editor button{
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  z-index: 1;
+  min-width: auto;
+}
+
+.code-editor button:nth-child(2){
+  right: 50px;
+  /* left: 0; */
+}

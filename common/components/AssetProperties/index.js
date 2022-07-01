@@ -1,4 +1,4 @@
-import { Grid, Collapse, Text, Container, Row, Button, Checkbox, Modal } from "@nextui-org/react";
+import { Grid, Collapse, Text, Container, Row, Button, Checkbox, Modal, Spacer } from "@nextui-org/react";
 import CodeEditor from "../CodeEditor";
 import FS from "../../fs";
 import { useState } from "react";
@@ -21,11 +21,11 @@ export default function AssetProperties({ filename, onClose, reloadGame }) {
     <div>
       <Row justify="center">
         <Button.Group>
-        <Button onPress={()=>{
+        {/* <Button onPress={()=>{
           FS.remove(FSPREFIX, filename + ".physics.json");
           FS.remove(FSPREFIX, filename + ".json");
           onClose();
-        }}>Reset</Button>
+        }}>Reset</Button> */}
           <Button onPress={onClose}>Close</Button>
         </Button.Group>
       </Row>
@@ -49,12 +49,13 @@ export default function AssetProperties({ filename, onClose, reloadGame }) {
       {physicsEnabled && (
       <>
         <h4>Physics (<a href="https://newdocs.phaser.io/docs/3.52.0/Phaser.Types.Physics.Matter#MatterBodyConfig" target="_blank">docs</a>)</h4>
-        <Button onPress={()=>{
-          setCollisionEditConfig({name: filename});
-        }}>Collision Shape Editor</Button>
         <Row>
           <CodeEditor filename={FSPREFIX + filename + ".physics.json"} defaultCode={DefaultCodes.physics} />
         </Row>
+        <Spacer />
+        <Button onPress={()=>{
+          setCollisionEditConfig({name: filename});
+        }}>Collision Shape Editor</Button>
       </>)}
       <Modal
         width="70vw"

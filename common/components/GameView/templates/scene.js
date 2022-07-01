@@ -121,6 +121,9 @@ const generateSpriteWithPhysics = async (file, previewMode) => {
     codeLines.push(`${varName}.setInteractive();`);
     codeLines.push(`this.input.setDraggable(${varName});`)
     codeLines.push(`${varName}.setData("filename", "${file}");`);
+    codeLines.push(`${varName}.on('pointerup', ()=> window.editorOnAssetSelect("${file}"));`);
+
+    console.log(codeLines)
   }
   return {properties, order: properties.order || 0, code: codeLines.join("\n")};
 }
@@ -152,17 +155,26 @@ const generateCreateFunc = async (gameConfig, previewMode) => {
         gameObject.x = dragX;
         gameObject.y = dragY;
         // console.log(gameObject.x, gameObject.y, gameObject.getData('filename'));
-        if (window.editorDragHandler) window.editorDragHandler(gameObject.getData('filename'), gameObject.x, gameObject.y);
+        if (window.editorDragHandler) {
+          window.editorDragHandler(
+            gameObject.getData('filename'), 
+            gameObject.x, 
+            gameObject.y, 
+            gameObject.getData('playerId') ?
+              {id: gameObject.getData('playerId'), index: gameObject.getData('playerIndex')}
+              :null
+          );
+        }
     });
     `:''}
     setTimeout(() => {
       ${createLines.sort((a,b)=> a.order-b.order).map((el)=> el.code).join("\n")}
 
       // add any players
-      ${previewMode?`
+      
       for (let i = 0; i < ${gameConfig.players||0}; i++) {
-        this.multiplayer.addPlayer();
-      }`:``}
+        this.multiplayer.addPlayer && this.multiplayer.addPlayer();
+      }
     }, 100);
     
   }`;
@@ -194,8 +206,14 @@ const generateAddPlayerSprite = async () => {
     const varName = FS.getFilenameWithoutExt(playerSprite.file);
     let createLines = await generateSpriteWithPhysics(playerSprite.file);
     return `
-    addPlayerSprite(state, profile) {
+    addPlayerSprite(state, profile, i) {
       ${createLines.code}
+      ${varName}.setData("playerId", state.id);
+      ${varName}.setData("playerIndex", i);
+      if (PlayersConfig && PlayersConfig[i]){
+        if (PlayersConfig[i].startX) ${varName}.x = PlayersConfig[i].startX;
+        if (PlayersConfig[i].startY) ${varName}.y = PlayersConfig[i].startY;
+      }
       return ${varName};
     }
     `
@@ -239,7 +257,7 @@ const generateScene = async (gameConfig, previewMode) => {
   
     ${preloadFunc}
     ${createFunc}
-    ${previewMode?addPlayerSpriteFunc:""}
+    ${addPlayerSpriteFunc}
     ${previewMode?updatePlayerFunc:""}
     ${previewMode?afterPlayerCreatedFunc:""}
   }

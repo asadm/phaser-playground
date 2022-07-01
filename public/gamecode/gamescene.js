@@ -14,11 +14,12 @@ class CommonGameScene extends Phaser.Scene {
     this.handlePlayerJoin = this.handlePlayerJoin.bind(this);
   }
 
-  async handlePlayerJoin(playerState) {
+  async handlePlayerJoin(playerState, i) {
     this.players[playerState.id] = { state: playerState };
     let sprite = await this.addPlayerSprite(
       playerState,
-      playerState.getState("profile")
+      playerState.getState("profile"),
+      i
     );
     playerState.on("quit", () => {
       if (this.handlePlayerQuit) this.handlePlayerQuit(playerState);
@@ -27,7 +28,7 @@ class CommonGameScene extends Phaser.Scene {
     });
 
     this.players[playerState.id] = { state: playerState, sprite };
-    if (this.afterPlayerCreated) this.afterPlayerCreated(playerState.id, sprite, playerState);
+    if (this.afterPlayerCreated) this.afterPlayerCreated(playerState.id, sprite, playerState, i);
   }
 
   async addPlayerSprite() {
@@ -37,9 +38,9 @@ class CommonGameScene extends Phaser.Scene {
   update() {
     // add any new players
     const players = this.multiplayer.getPlayers();
-    Object.keys(players).forEach((playerId) => {
+    Object.keys(players).forEach((playerId, i) => {
       if (!this.players[playerId]) {
-        this.handlePlayerJoin(players[playerId]);
+        this.handlePlayerJoin(players[playerId], i);
       }
     });
 

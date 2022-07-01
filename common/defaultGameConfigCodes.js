@@ -1,4 +1,5 @@
 const gameConfig = {
+  backgroundColor: "#ffffff",
   matter: {
     runner: {
       fps: 15,
@@ -11,6 +12,13 @@ const gameConfig = {
   },
   players: 0
 }
+
+const playersConfig = [
+  { name: "Player 1", id: "p1", color: "blue", keys: ["w", "a", "s", "d", "f", "g"] },
+  { name: "Player 2", id: "p2", color: "pink", keys: ["up", "left", "down", "right", "ctrl", "shift"] },
+  { name: "Player 3", id: "p3", color: "green", keys: ["i", "j", "k", "l", "y", "u"] },
+]
+
 
 const updatePlayerJs = `
 /* 
@@ -42,6 +50,7 @@ afterPlayerCreated(playerId, sprite, state) {
 
 export default {
   "gameConfig.json": JSON.stringify(gameConfig, null, 2),
+  "playersConfig.json": JSON.stringify(playersConfig, null, 2),
   "afterPlayerCreated.js": afterPlayerCreatedJs,
   "updatePlayer.js": updatePlayerJs,
 }

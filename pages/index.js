@@ -41,7 +41,7 @@ export default function Home() {
 
       <main className="editor-container">
         <Container fluid style={{maxWidth: "100vw"}}>
-          <Row>
+          <Row justify='center'>
             <Button.Group>
               <Button onPress={() => {
                 var con = confirm("Are you sure you want to delete all assets and code and start new project?");

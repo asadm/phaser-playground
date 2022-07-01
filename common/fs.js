@@ -24,7 +24,6 @@ async function writeFile(dir, file){
 }
 
 async function writeTextFile(dir, filename, data) {
-  console.log("writing file", dir, filename, data);
   const fullPath = path.join(dir, filename);
   return new Promise(async (resolve, reject) => {
     await mkdirp(path.dirname(fullPath));

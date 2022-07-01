@@ -17,6 +17,10 @@ export default function FileTree({onProperties}){
   
   useEffect(()=>{
     const endWatch = FS.watchDir("/assets", files => setFiles(files))
+    window.editorOnAssetSelect = (file)=>{
+      console.log("editorOnAssetSelect", file)
+      onProperties(file);
+    }
     return endWatch;
   },[])
 
@@ -121,10 +125,10 @@ export default function FileTree({onProperties}){
           <Text id="modal-title" size={18}>
             {configEditorFile ? configEditorFile:""}
             </Text>
-            <Button light onPress={()=>{
+            {/* <Button light onPress={()=>{
               FS.writeTextFile("/configs", configEditorFile, DefaultCodes[configEditorFile]);
               setConfigEditorFile(null);
-            }}>Reset</Button>
+            }}>Reset</Button> */}
         </Modal.Header>
         <Modal.Body>
           {configEditorFile && <CodeEditor filename={"/configs/" + configEditorFile} defaultCode={DefaultCodes[configEditorFile]} />}

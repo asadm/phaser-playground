@@ -11,7 +11,7 @@ const defaultPhysicsConfig = {
   debug: true
 }
 
-const gameConfig = (physicsConfig) => `{
+const gameConfig = (curGameConfig, physicsConfig) => `{
   type: Phaser.AUTO,
   parent: 'game-canvas-container',
   width: 1170 * (19.5 / 9),
@@ -19,6 +19,7 @@ const gameConfig = (physicsConfig) => `{
   scale: {
     mode: Phaser.Scale.FIT,
   },
+  backgroundColor: "${curGameConfig.backgroundColor || "#ffffff"}",
   scene: MyGame,
   physics: ${JSON.stringify(physicsConfig, null, 2)},
 }`;
@@ -31,12 +32,19 @@ export default async function generateGameCode(previewMode) {
     curGameConfig = JSON.parse(await fs.getFileAsText("/configs", "gameConfig.json"));
   }
 
+  let curPlayersConfig = JSON.parse(defaultGameConfigCodes['playersConfig.json']);
+  const playersConfigExists = await fs.exists("/configs/playersConfig.json");
+  if (playersConfigExists) {
+    curPlayersConfig = JSON.parse(await fs.getFileAsText("/configs", "playersConfig.json"));
+  }
+
   const sceneClass = await generateScene(curGameConfig, previewMode);
   return `
   ${sceneClass};
 
   // Start the game
-  const config = ${gameConfig(!previewMode ? { ...defaultPhysicsConfig, matter: { debug: true } } : { ...defaultPhysicsConfig, matter: curGameConfig.matter })};
+  const config = ${gameConfig(curGameConfig, !previewMode ? { ...defaultPhysicsConfig, matter: { debug: true } } : { ...defaultPhysicsConfig, matter: curGameConfig.matter })};
+  const PlayersConfig = ${JSON.stringify(curPlayersConfig, null, 2)};
   const game = new Phaser.Game(config);
   window.game = game;
   `;

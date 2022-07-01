@@ -38,6 +38,8 @@ export default function CollisionEditor() {
     <div>
       <Head>
         <title>Physics Editor</title>
+        <meta name="description" content="Physics editor for Phaser" />
+        <link rel="icon" href="/favicon.png" />
       </Head>
       <div className="collision-editor-uploader">
       <Row justify='center'>

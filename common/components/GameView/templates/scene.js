@@ -23,6 +23,13 @@ const generatePreloadFunc = async () => {
 }
 
 const getConvexHullVerticesFromPolygon = (polygon) => {
+  console.log("getConvexHullVerticesFromPolygon", convexhull.makeHull(polygon));
+  console.log("getConvexHullVerticesFromPolygon2", getConvexHullVerticesFromPolygon2(polygon));
+  // return [convexhull.makeHull(polygon)];
+  return getConvexHullVerticesFromPolygon2(polygon);
+}
+
+const getConvexHullVerticesFromPolygon2 = (polygon) => {
   let polygonArr = polygon.map((el)=> [el.x, el.y]);
   decomp.makeCCW(polygonArr);
   const convexHull = decomp.quickDecomp(polygonArr);

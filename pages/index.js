@@ -23,6 +23,7 @@ export default function Home() {
         <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet"></link>
       </Head>
       <Script src="/js/jquery-1.11.3.min.js" strategy="beforeInteractive" />
+      <Script src="/js/convexhull.js" strategy="beforeInteractive" />
       <Script src="/js/raphael.js" strategy="beforeInteractive" />
       <Script src="/js/shapes/line.js" strategy="beforeInteractive" />
       <Script src="/js/shapes/ellipse.js" strategy="beforeInteractive" />

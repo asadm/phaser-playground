@@ -1,4 +1,6 @@
 const Filer = require('filer');
+var slugify = require('slugify')
+
 let fs, sh, fsPromises, path;
 if (typeof window !== "undefined"){
   fs = new Filer.FileSystem();
@@ -9,18 +11,30 @@ if (typeof window !== "undefined"){
 
 async function writeFile(dir, file){
   return new Promise((resolve, reject) => {
-    const fullPath = path.join(dir, file.name);
     file.file(async (fileItself)=>{
       const data = await new Response(fileItself).arrayBuffer();
-      const ex = await exists(fullPath);
-      if (ex){
-        await removeFile(dir, file.name);
-      }
-      await mkdirp(dir);
-      await fsPromises.writeFile(fullPath, Filer.Buffer.from(data));
-      resolve();
+      return writeArrayBufferToFile(dir, file.name, data);
+      // const ex = await exists(fullPath);
+      // if (ex){
+      //   await removeFile(dir, fileName);
+      // }
+      // await mkdirp(dir);
+      // await fsPromises.writeFile(fullPath, Filer.Buffer.from(data));
+      // resolve(fileName);
     })
   })
+}
+
+async function writeArrayBufferToFile(dir, fileName, arrayBuffer){
+  fileName = slugify(fileName, {lower: true, replacement: '_'});
+  const fullPath = path.join(dir, fileName);
+  const ex = await exists(fullPath);
+  if (ex){
+    await removeFile(dir, fileName);
+  }
+  await mkdirp(dir);
+  await fsPromises.writeFile(fullPath, Filer.Buffer.from(arrayBuffer));
+  return fileName;
 }
 
 async function writeTextFile(dir, filename, data) {
@@ -130,6 +144,7 @@ export default {
   clear: clearStorage,
   write: writeFile,
   writeTextFile,
+  writeArrayBufferToFile,
   list: listAllFiles,
   remove: removeFile,
   watchDir,

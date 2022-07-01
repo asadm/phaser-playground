@@ -7,10 +7,11 @@ import { useState, useEffect } from 'react';
 import FS from '../../fs';
 
 
-export default function CodeEditor({ filename, defaultCode }) {
+export default function CodeEditor({ filename, defaultCode, readOnly }) {
   const [code, setCode] = useState("");
 
   useEffect(() => {
+    if (readOnly) return;
     console.log("editor onload", filename);
     const dir = FS.path.dirname(filename);
     const file = FS.path.basename(filename);
@@ -41,17 +42,22 @@ export default function CodeEditor({ filename, defaultCode }) {
 
   return (
     <div className="code-editor">
-    <Button onPress={()=>{
-      const dir = FS.path.dirname(filename);
-      const file = FS.path.basename(filename);
-      FS.writeTextFile(dir, file, code).then(()=>{
-        if (window.reloadGame) window.reloadGame();
-      });
-    }} size="xs">Save</Button>
-    {defaultCode && <Button onPress={()=> setCode(defaultCode)} size="xs">Reset</Button>}
+      {!readOnly && (
+      <>
+      <Button onPress={()=>{
+        const dir = FS.path.dirname(filename);
+        const file = FS.path.basename(filename);
+        FS.writeTextFile(dir, file, code).then(()=>{
+          if (window.reloadGame) window.reloadGame();
+        });
+      }} size="xs">Save</Button>
+      {defaultCode && <Button onPress={()=> setCode(defaultCode)} size="xs">Reset</Button>}
+      </>)}
+    
     <CodeMirror
-      value={code}
+      value={readOnly ? defaultCode : code}
       theme='dark'
+      readOnly={readOnly}
       // height="200px"
       extensions={[
         // autocompletion({override: [myCompletions]}),

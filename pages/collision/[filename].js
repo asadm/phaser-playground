@@ -4,10 +4,10 @@ import Script from 'next/script'
 import { useEffect, useState } from 'react'
 import { Button, Modal, Row, Text, Grid, Checkbox, Tooltip, Spacer } from "@nextui-org/react";
 import FS from "../../common/fs";
-import addPointToPolygon from './_addPointToPolygon';
-import removePointClosest from './_removePointClosest';
-import convertToPhaserMatterConfig from './_generateJSON';
-import generateGameCode from './_generateExampleCode';
+import addPointToPolygon from '../../common/collisionEditorHelpers/_addPointToPolygon';
+import removePointClosest from '../../common/collisionEditorHelpers/_removePointClosest';
+import convertToPhaserMatterConfig from '../../common/collisionEditorHelpers/_generateJSON';
+import generateGameCode from '../../common/collisionEditorHelpers/_generateExampleCode';
 
 // import sampleImage from "./sample.png"
 var getImageOutline = require('image-outline/browser');
@@ -217,15 +217,17 @@ export default function CollisionEditor() {
                 "radiusY": 30,
                 "radiusX": 30,
                 "strokeWidth": 2,
-                "y": 10,
-                "x": 10
+                "y": Math.random()* 50 + image.width/2,
+                "x": Math.random()* 50 + image.height/2
               })
             }}>Add Circle</Button>
             
             <Button onPress={() => {
+              const offX = Math.random()* 50 + image.width/2;
+              const offY = Math.random()* 50 + image.height/2;
               const polygon = editor.addShapeJson({
                 "type": "Polygon",
-                "points": "10,10 10,30 30,30 20,10",
+                "points": [[10+offX,10+offY], [10+offX,30+offY], [30+offX,30+offY]].map(p => p.join(",")).join(" "),
                 "strokeColor": "#FF00FF",
                 "strokeWidth": 2
               })

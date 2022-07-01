@@ -22,7 +22,7 @@ var Polygon = function Polygon(options) {
     if (options.zoom) {
         this._zoomFraction = options.zoom / 100;
     }
-    this.handle_wh = 6;
+    this.handle_wh = 12;
 
     this.element = this.paper.path("");
     this.element.attr({'fill-opacity': 0.01,
@@ -59,6 +59,10 @@ var Polygon = function Polygon(options) {
                 // notify manager if rectangle has moved
                 if (this.prevX !== 0 || this.prevY !== 0) {
                     self.manager.notifySelectedShapesChanged();
+                }
+                else{
+                    // click?
+                    // self.manager.click.apply(self.manager, arguments);
                 }
                 return false;
             }
@@ -262,8 +266,10 @@ Polygon.prototype.createHandles = function createHandles() {
 
     // draw handles
     self.handles = this.paper.set();
+    var isDraggingHandle = false;
     var _handle_drag = function() {
         return function (dx, dy, mouseX, mouseY, event) {
+            isDraggingHandle = true;
             dx = dx / self._zoomFraction;
             dy = dy / self._zoomFraction;
             // on DRAG...
@@ -276,6 +282,7 @@ Polygon.prototype.createHandles = function createHandles() {
     };
     var _handle_drag_start = function() {
         return function () {
+            isDraggingHandle = false;
             // START drag: simply note the location we started
             // we scale by zoom to get the 'model' coordinates
             this.ox = (this.attr("x") + this.attr('width')/2) / self._zoomFraction;
@@ -284,9 +291,19 @@ Polygon.prototype.createHandles = function createHandles() {
         };
     };
     var _handle_drag_end = function() {
-        return function() {
+        return function(event) {
             // simply notify manager that shape has changed
-            self.manager.notifyShapesChanged([self]);
+            if (!isDraggingHandle) {
+                // console.log("click handle?")
+                // only send right click on handle.
+                if (event && event.which !== 1){
+                    self.manager.click.apply(self.manager, arguments);
+                }
+            }
+            else{
+                self.manager.notifyShapesChanged([self]);
+            }
+            isDraggingHandle = false;
             return false;
         };
     };

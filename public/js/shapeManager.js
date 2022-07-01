@@ -33,6 +33,8 @@ var ShapeManager = function ShapeManager(elementId, width, height, options) {
     // Don't allow editing of shapes - no drag/click events
     this.canEdit = !options.readOnly;
 
+    this.onClick = options.onClick;
+
     // Set up Raphael paper...
     this.paper = Raphael(elementId, width, height);
 
@@ -54,16 +56,32 @@ var ShapeManager = function ShapeManager(elementId, width, height, options) {
     this.selectRegion.hide().attr({'stroke': '#ddd',
                                    'stroke-width': 0,
                                    'stroke-dasharray': '- '});
+
+    // drag vs click conflict fix
+    // https://github.com/DmitryBaranovskiy/raphael/issues/922
+    this.isDragging = false;
     if (this.canEdit) {
         this.newShapeBg.drag(
             function(){
+                self.isDragging = true;
+                // console.log("drag")
                 self.drag.apply(self, arguments);
             },
             function(){
+                // console.log("start drag")
+                self.isDragging = false;
                 self.startDrag.apply(self, arguments);
             },
             function(){
+                
+                console.log("stop drag", self.isDragging)
+                
                 self.stopDrag.apply(self, arguments);
+                if (!self.isDragging){
+                    self.click.apply(self, arguments);
+                }
+                self.isDragging = false;
+                return true;
             });
 
         this.shapeFactories = {
@@ -79,9 +97,23 @@ var ShapeManager = function ShapeManager(elementId, width, height, options) {
     }
 };
 
+ShapeManager.prototype.click = function click(event){
+    if (this.onClick) {
+        var offset = this.$el.offset(),
+            startX = event.pageX - offset.left,
+            startY = event.pageY - offset.top;
+        // correct for zoom before passing coordinates to shape
+        var zoomFraction = this._zoom / 100;   
+        startX = startX / zoomFraction;
+        startY = startY / zoomFraction;
+        let selectedShapes = this.getSelectedShapes();
+        this.onClick(event, startX, startY, selectedShapes, this);
+    }
+}
+
 ShapeManager.prototype.startDrag = function startDrag(x, y, event){
     // clear any existing selected shapes
-    this.clearSelectedShapes();
+    // this.clearSelectedShapes();
 
     var offset = this.$el.offset(),
         startX = x - offset.left,

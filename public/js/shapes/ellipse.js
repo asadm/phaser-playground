@@ -47,7 +47,7 @@ var Ellipse = function Ellipse(options) {
     if (options.zoom) {
         this._zoomFraction = options.zoom / 100;
     }
-    this.handle_wh = 6;
+    this.handle_wh = 12;
 
     this.element = this.paper.ellipse();
     this.element.attr({'fill-opacity': 0.7,

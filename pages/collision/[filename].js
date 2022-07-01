@@ -4,6 +4,8 @@ import Script from 'next/script'
 import { useEffect, useState } from 'react'
 import { Button, Spacer, Row } from "@nextui-org/react";
 import FS from "../../common/fs";
+import addPointToPolygon from './_addPointToPolygon';
+import removePointClosest from './_removePointClosest';
 // import sampleImage from "./sample.png"
 var getImageOutline = require('image-outline/browser');
 
@@ -34,7 +36,47 @@ export default function CollisionEditor() {
 
 
     // const {width, height, src} = image;
-    const options = {}
+    const options = {onClick: function(event, x, y, selectedShapes, editor){     
+      if (selectedShapes && selectedShapes.length>0 && selectedShapes[0].toJson().type === 'Polygon'){
+        const isLeftClick = event.which === 1;
+        const polygon = selectedShapes[0];
+        console.log("selectedShapes", polygon._id, polygon.toJson(), x, y, isLeftClick);
+        const polygonPoints = polygon.toJson().points.split(" ").map(p => {
+          const [x, y] = p.split(",");
+          return {x: parseInt(x), y: parseInt(y)}
+        });
+        if (isLeftClick){
+          // add a point and sort polygons
+          const newPolygon = addPointToPolygon(polygonPoints, {x, y});
+          const polygonFormatted = newPolygon.map(p => p.x + "," + p.y).join(" ");
+          console.log(polygonPoints, newPolygon);
+          editor.deleteShapesByIds([polygon._id]);
+          const newShape = editor.addShapeJson({
+            "id": polygon._id,
+            "type": "Polygon",
+            "points": polygonFormatted,
+            "strokeColor": "#FF00FF",
+            "strokeWidth": 2
+          });
+          editor.selectShapesById(newShape._id);
+        }
+        else{
+          // remove point from polygon
+          const newPolygon = removePointClosest(polygonPoints, {x, y});
+          const polygonFormatted = newPolygon.map(p => p.x + "," + p.y).join(" ");
+          console.log(polygonPoints, newPolygon);
+          editor.deleteShapesByIds([polygon._id]);
+          const newShape = editor.addShapeJson({
+            "id": polygon._id,
+            "type": "Polygon",
+            "points": polygonFormatted,
+            "strokeColor": "#FF00FF",
+            "strokeWidth": 2
+          });
+          editor.selectShapesById(newShape._id);
+        }
+      }
+    }}
     var image = new Image();
     window.__editorImageEl = image;
 
@@ -46,6 +88,14 @@ export default function CollisionEditor() {
         image.width, image.height,
         options);
       setEditor(shapeManager);
+
+      // set default Zoom
+      const maxSideOfImage = Math.max(image.width, image.height);
+      const screenWidthToFit = window.innerWidth/2;
+      const newZoom = screenWidthToFit / maxSideOfImage
+      setZoom(newZoom);
+      shapeManager.setZoom(parseInt(newZoom * 100));
+
       // read file if exists and load it
       const shapeFile = imageName + ".shape.json";
       FS.exists(FS.path.join("/properties", shapeFile)).then((exists) => {
@@ -80,7 +130,7 @@ export default function CollisionEditor() {
         <title>Collision Editor - Phaser Playground</title>
       </Head>
       <Script src="/js/jquery-1.11.3.min.js" strategy="beforeInteractive" />
-      <Script src="/js/raphael.js" strategy="beforeInteractive" />
+      <Script src="/js/raphael.min.js" strategy="beforeInteractive" />
       <Script src="/js/shapes/line.js" strategy="beforeInteractive" />
       <Script src="/js/shapes/ellipse.js" strategy="beforeInteractive" />
       <Script src="/js/shapes/rect.js" strategy="beforeInteractive" />
@@ -96,8 +146,12 @@ export default function CollisionEditor() {
       <Script src="/gamecode/multiplayer.js" strategy="beforeInteractive" />
       <Script src="/gamecode/gamescene.js" strategy="beforeInteractive" />
       <main>
-        <div className='image-super-wrapper'>
-          <div className='image-wrapper'>
+        <div className='image-super-wrapper' onContextMenuCapture={(ev)=> {
+          ev.preventDefault();
+          // alert('success!');
+          return false;
+        }}>
+          <div className='image-wrapper' >
             {image && <img src={image.src} alt="sample"
               style={{ width: image.width * zoom, height: image.height * zoom }} />}
             <div id="shapesCanvas" style={image ? { width: image.width * zoom, height: image.height * zoom } : {}}></div>
@@ -153,14 +207,14 @@ export default function CollisionEditor() {
 <Button.Group>
             <Button onPress={() => {
               if (zoom <= 0.1) return;
-              const newZoom = zoom - 0.1;
+              const newZoom = zoom - (zoom >= 2 ? 1:0.1);
               setZoom(newZoom);
               editor.setZoom(parseInt(newZoom * 100));
             }}>Zoom-</Button>
             <Button disabled>{parseInt(zoom * 100)}</Button>
             <Button onPress={() => {
               if (zoom >= 10) return;
-              const newZoom = zoom + 0.1;
+              const newZoom = zoom + (zoom >= 2 ? 1:0.1);
               setZoom(newZoom);
               editor.setZoom(parseInt(newZoom * 100));
             }}>Zoom+</Button>

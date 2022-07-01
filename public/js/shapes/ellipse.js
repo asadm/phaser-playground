@@ -265,7 +265,7 @@ Ellipse.prototype.updateHandle = function updateHandle(handleId, x, y, shiftKey)
     var h = this._handleIds[handleId];
     h.x = x;
     h.y = y;
-    var resizeWidth = (handleId === "left" || handleId === "right");
+    var resizeWidth = false//(handleId === "left" || handleId === "right");
     this.updateShapeFromHandles(resizeWidth, shiftKey);
 };
 

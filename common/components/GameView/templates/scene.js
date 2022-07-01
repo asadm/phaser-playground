@@ -66,7 +66,7 @@ const convertShapesToFixtures = (filename, shapes, applyConvexHull) => {
       return {
 				"label": `${filename}-fixture-${i}`,
 				"isSensor": false,
-        "vertices": applyConvexHull? getConvexHullVerticesFromPolygon(shape.points): shape.points
+        "vertices": applyConvexHull? getConvexHullVerticesFromPolygon(shape.points): [shape.points]
 			}
     }
     else if (shape.type === "circle"){

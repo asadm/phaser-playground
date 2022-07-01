@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
-import { Button, Modal, Row, Text, Grid } from "@nextui-org/react";
+import { Button, Modal, Row, Text, Grid, Checkbox, Tooltip, Spacer } from "@nextui-org/react";
 import FS from "../../common/fs";
 import addPointToPolygon from './_addPointToPolygon';
 import removePointClosest from './_removePointClosest';
@@ -20,6 +20,7 @@ export default function CollisionEditor() {
   const imageName = router.query.filename;
   const saveMode = router.query.save;
   const [zoom, setZoom] = useState(1);
+  const [applyConvexHull, setApplyConvexHull] = useState(true);
   const [showJSON, setShowJSON] = useState(null);
   const [simplifyThreshold, setSimplifyThreshold] = useState(10);
   const [editor, setEditor] = useState(null);
@@ -172,6 +173,7 @@ export default function CollisionEditor() {
             <div id="shapesCanvas" style={image ? { width: image.width * zoom, height: image.height * zoom } : {}}></div>
           </div>
         </div>
+        <Spacer />
         <Row justify='center'>
           <Text style={{ marginTop: "12px", marginRight: "50px" }} weight="bold" >{imageName}</Text>
 
@@ -185,7 +187,7 @@ export default function CollisionEditor() {
             }}>-</Button>
             <Button disabled>{parseInt(zoom * 100)}%</Button>
             <Button onPress={() => {
-              if (zoom >= 20) return;
+              if (zoom >= 30) return;
               const newZoom = zoom + (zoom >= 2 ? 1 : 0.1);
               setZoom(newZoom);
               editor.setZoom(parseInt(newZoom * 100));
@@ -233,26 +235,26 @@ export default function CollisionEditor() {
           </Button.Group>
 
           {autoShapePolygonExists && (
-          <Button.Group>
-            <Button disabled>Tweak Auto-trace</Button>
-            <Button onPress={() => {
-              editor.deleteShapesByIds([autoTraceShapeID]);
-              const newThreshold = simplifyThreshold + 10;
-              setSimplifyThreshold(newThreshold);
-              addPolygon(editor, newThreshold);
-            }}>-</Button>
-            <Button disabled>{polygons.length}</Button>
-            <Button onPress={() => {
-              editor.deleteShapesByIds([autoTraceShapeID]);
-              const newThreshold = simplifyThreshold - 10;
-              setSimplifyThreshold(newThreshold);
-              addPolygon(editor, newThreshold);
-            }}>+</Button>
-          </Button.Group>)}
+            <Button.Group>
+              <Button disabled>Tweak Auto-trace</Button>
+              <Button onPress={() => {
+                editor.deleteShapesByIds([autoTraceShapeID]);
+                const newThreshold = simplifyThreshold + 10;
+                setSimplifyThreshold(newThreshold);
+                addPolygon(editor, newThreshold);
+              }}>-</Button>
+              <Button disabled>{polygons.length}</Button>
+              <Button onPress={() => {
+                editor.deleteShapesByIds([autoTraceShapeID]);
+                const newThreshold = simplifyThreshold - 10;
+                setSimplifyThreshold(newThreshold);
+                addPolygon(editor, newThreshold);
+              }}>+</Button>
+            </Button.Group>)}
 
 
 
-          
+
           {saveMode &&
             <Button.Group color='success'>
               <Button onClick={() => {
@@ -262,11 +264,26 @@ export default function CollisionEditor() {
             </Button.Group>}
 
           {!saveMode &&
+            <div style={{ margin: "12px" }} >
+              <Checkbox isSelected={applyConvexHull} onChange={() => {
+                setApplyConvexHull(!applyConvexHull);
+              }} size="sm">
+                Apply Convex Hull
+                <Tooltip content={<b>Phaser doesn't like it if your polygon is not convex-shaped.<br />Untick this if it messes with your shape too much!</b>}>
+                  <small style={{ fontWeight: "bold", marginLeft: "5px", color: "#0072F5" }}>
+                    (what?)
+                  </small>
+                </Tooltip>
+              </Checkbox>
+            </div>
+          }
+
+          {!saveMode &&
             <Button.Group color='success'>
               <Button onClick={() => {
                 const shapes = editor.getShapesJson()
                 FS.writeTextFile("/properties", imageName + ".shape.json", JSON.stringify(shapes));
-                const fullConfig = convertToPhaserMatterConfig(FS.getFilenameWithoutExt(imageName), imageName, shapes, true).trim();
+                const fullConfig = convertToPhaserMatterConfig(FS.getFilenameWithoutExt(imageName), imageName, shapes, applyConvexHull).trim();
                 setShowJSON(fullConfig);
               }}>Show JSON</Button>
             </Button.Group>}
@@ -287,23 +304,23 @@ export default function CollisionEditor() {
             </Text>
           </Modal.Header>
           <Modal.Body>
-          <Grid.Container gap={2} justify="center">
-          <Grid xs={6}>
-              {showJSON && <CodeEditor className="full-width" readOnly defaultCode={showJSON} />}
-            </Grid>
-            <Grid xs={6}>
-              <div style={{width: "100%"}}>
-              <Row>
-                <h3>Usage</h3>
-              </Row>
-              <p>
-                Save the JSON file on left and then load it in your Phaser + Matter game as follows:
-                </p>
-              <Row>
-                {showJSON && <CodeEditor className="full-width" readOnly defaultCode={generateGameCode(FS.getFilenameWithoutExt(imageName), imageName)} />}
-              </Row>
-              </div>
-            </Grid>
+            <Grid.Container gap={2} justify="center">
+              <Grid xs={6}>
+                {showJSON && <CodeEditor className="full-width" readOnly defaultCode={showJSON} />}
+              </Grid>
+              <Grid xs={6}>
+                <div style={{ width: "100%" }}>
+                  <Row>
+                    <h3>Usage</h3>
+                  </Row>
+                  <p>
+                    Save the JSON file on left and then load it in your Phaser + Matter game as follows:
+                  </p>
+                  <Row>
+                    {showJSON && <CodeEditor className="full-width" readOnly defaultCode={generateGameCode(FS.getFilenameWithoutExt(imageName), imageName)} />}
+                  </Row>
+                </div>
+              </Grid>
             </Grid.Container>
           </Modal.Body>
         </Modal>

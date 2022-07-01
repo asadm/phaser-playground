@@ -1,4 +1,5 @@
 import {convertToPhaserMatterConfig} from "../../common/components/GameView/templates/scene";
+var beautify = require("json-beautify");
 
 const physicsConfig = {
   "type": "fromPhysicsEditor",
@@ -18,5 +19,5 @@ const physicsConfig = {
 export default function(varName, filename, shapes, applyConvexHull) {
   return `
 // assets/${varName}-shape.json
-${JSON.stringify(convertToPhaserMatterConfig(filename, physicsConfig, shapes, applyConvexHull), null, 2)}`
+${beautify(convertToPhaserMatterConfig(filename, physicsConfig, shapes, applyConvexHull), null, 2, 80)}`
 }

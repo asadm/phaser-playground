@@ -21,7 +21,7 @@ export default function CollisionEditor() {
         </Grid.Container>
       </Row>
       <Row justify='center'>
-        <Link href="/collision"><Button>Open</Button></Link>
+        <Link href="/physics"><Button>Open</Button></Link>
       </Row>
       
         <Spacer y={10}/>

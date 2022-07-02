@@ -35,7 +35,7 @@ function create() {
   
   ${!previewModeConfig?`this.matter.add.image(100, 100, '${varName}', null, { shape: shape });`:`
   setTimeout(() => {
-    this.matter.add.image(100, 100, '${varName}', null, { shape: shape });
+    this.matter.add.image(300, 300, '${varName}', null, { shape: shape });
   }, 1000);
   `}
 

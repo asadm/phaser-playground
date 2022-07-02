@@ -55,7 +55,7 @@ export default function AssetProperties({ filename, onClose, reloadGame }) {
           <CodeEditor filename={FSPREFIX + filename + ".physics.json"} defaultCode={DefaultCodes.physics} />
         </Row>
         <Spacer />
-        <a target="_blank" href={`/collision/${encodeURIComponent(filename)}`}><Button>Collision Shape Editor</Button></a>
+        <a target="_blank" href={`/physics/${encodeURIComponent(filename)}?save=1`}><Button>Collision Shape Editor</Button></a>
       </>)}
       {/* <Modal
         width="70vw"

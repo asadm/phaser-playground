@@ -40,6 +40,14 @@ const getConvexHullVerticesFromPolygon2 = (polygon) => {
   });
 }
 
+const getSortedPolygon = (polygon) => {
+  let polygonArr = polygon.map((el)=> [el.x, el.y]);
+  decomp.makeCCW(polygonArr);
+  return polygonArr.map((point) => (
+    {x: point[0], y: point[1]}
+    ));
+}
+
 const convertShapesToFixtures = (filename, shapes, applyConvexHull) => {
   console.log("convertShapesToFixtures", filename, shapes);
   const formatted = shapes.map(s => {

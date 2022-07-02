@@ -42,6 +42,12 @@ export default function CollisionEditor() {
         <link rel="icon" href="/favicon.png" />
       </Head>
       <div className="collision-editor-uploader">
+      <Row>
+      <video width="1280" height="720" autoPlay loop muted playsInline preload="auto" webkit-playsinline="true" id="video-screenshot">
+          <source src="/physics.webm" />
+        </video>
+      </Row>
+      <hr/>
       <Row justify='center'>
         <img src='/favicon.png'/>
       </Row>

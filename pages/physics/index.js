@@ -38,9 +38,15 @@ export default function CollisionEditor() {
     <div>
       <Head>
         <title>Physics Editor</title>
-        <meta name="description" content="Physics editor for Phaser" />
-        <meta property="og:video" content="/physics.mp4" />
-        <meta property="og:image" content="/favicon.png" />
+        <meta name="description" content="Generate Phaser physics shape data for your sprites." />
+        <meta property="og:video" content="https://phaser.asadmemon.com/physics.mp4" />
+        <meta property="og:image" content="https://phaser.asadmemon.com/favicon.png" />
+
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://phaser.asadmemon.com/physics" />
+        <meta property="twitter:title" content="Physics Editor for Phaser" />
+        <meta property="twitter:description" content="Generate Phaser physics shape data for your sprites." />
+        <meta property="twitter:image" content="https://phaser.asadmemon.com/favicon.png" />
         <link rel="icon" href="/favicon.png" />
       </Head>
       <div className="collision-editor-uploader">
@@ -69,8 +75,8 @@ export default function CollisionEditor() {
       <input {...getInputProps()} />
       {
         isDragActive ?
-          <p>Drop the files here...</p> :
-          <p>Drag &apos;n&apos; drop some files here, or click to select files</p>
+          <p>Drop the file here...</p> :
+          <p>Drag &apos;n&apos; drop a file here, or click to select file</p>
       }
     </div>
         {/* <input type="file" id="input-button" onChange={(e)=>{

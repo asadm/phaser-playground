@@ -18,7 +18,7 @@ export default function CollisionEditor() {
         const binaryStr = reader.result
         FS.writeArrayBufferToFile("/assets", file.name, binaryStr).then((fileName)=>{
           console.log("file saved", fileName);
-          window.location.href = "/collision/" + fileName;
+          window.location.href = "/physics/" + fileName;
         });
       }
       reader.readAsArrayBuffer(file)

@@ -13,7 +13,7 @@ export default function CollisionEditor() {
       <Row justify='center'>
         <Grid.Container justify='center' gap={2}>
           <Grid>
-            <img src='/favicon.png'/>
+          <img src='/favicon.png' width={80}/>
           </Grid>
           <Grid>
           <h1>Physics Editor for Phaser</h1>

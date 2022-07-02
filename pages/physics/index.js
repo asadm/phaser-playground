@@ -58,7 +58,7 @@ export default function CollisionEditor() {
       </Row>
       <hr/>
       <Row justify='center'>
-        <img src='/favicon.png'/>
+        <img src='/favicon.png' width={100}/>
       </Row>
       <Row justify='center'>
         <h1>Physics Editor for Phaser</h1>

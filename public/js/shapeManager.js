@@ -564,6 +564,7 @@ ShapeManager.prototype.clearSelectedShapes = function clearSelectedShapes(silent
 ShapeManager.prototype.selectShapesByRegion = function selectShapesByRegion(region) {
 
     // Clear selected with silent:true, since we notify again below
+    const curSelected = this.getSelectedShapes();
     this.clearSelectedShapes(true);
 
     var toSelect = [];
@@ -572,7 +573,12 @@ ShapeManager.prototype.selectShapesByRegion = function selectShapesByRegion(regi
             toSelect.push(shape);
         }
     });
-    this.selectShapes(toSelect);
+    if (toSelect.length>0) {
+        this.selectShapes(toSelect);
+    }
+    else{
+        this.selectShapes(curSelected);
+    }
 };
 
 ShapeManager.prototype.selectAllShapes = function selectAllShapes(region) {
